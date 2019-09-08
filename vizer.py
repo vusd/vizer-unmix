@@ -46,11 +46,20 @@ estimates = test.separate(audio=audio.T, targets=['vocals', 'drums', 'bass', 'ot
 # librosa.output.write_wav('out_west.mp3', audio, rate)
 
 
-librosa.output.write_wav('{}/out0_all.mp3'.format(basename), audio, rate)
-librosa.output.write_wav('{}/out1_vocals.mp3'.format(basename), estimates['vocals'], rate)
-librosa.output.write_wav('{}/out2_drums.mp3'.format(basename), estimates['drums'], rate)
-librosa.output.write_wav('{}/out3_bass.mp3'.format(basename), estimates['bass'], rate)
-librosa.output.write_wav('{}/out4_other.mp3'.format(basename), estimates['other'], rate)
+librosa.output.write_wav('{}/out0_all.wav'.format(basename), audio, rate)
+librosa.output.write_wav('{}/out1_vocals.wav'.format(basename), estimates['vocals'], rate)
+librosa.output.write_wav('{}/out2_drums.wav'.format(basename), estimates['drums'], rate)
+librosa.output.write_wav('{}/out3_bass.wav'.format(basename), estimates['bass'], rate)
+librosa.output.write_wav('{}/out4_other.wav'.format(basename), estimates['other'], rate)
+
+# https://stackoverflow.com/questions/3255674/convert-audio-files-to-mp3-using-ffmpeg
+for file in ["out0_all", "out1_vocals", "out2_drums", "out3_bass", "out4_other"]:	
+    command = "ffmpeg -i {0}/{1}.wav -vn -ar 44100 -ac 2 -b:a 192k {0}/{1}.mp3".format(basename, file)
+    # command = "ffmpeg -i input.wav -vn -ar 44100 -ac 2 -b:a 192k output.mp3".format(bars_dir,bars_dir)
+    os.system(command)
+
+command = "rm {}/*.wav".format(basename)
+os.system(command)
 
 volume_lists = [None] * 5
 
