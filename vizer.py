@@ -3,14 +3,26 @@ import numpy as np
 import scipy
 import librosa
 import test
+import os
 
 import sys
 
 if len(sys.argv) < 2:
-    print("usage: vizer.py input.mp3")
+    print("usage: vizer.py input.mp3 [outdir]")
     sys.exit(0)
 
 infile = sys.argv[1]
+
+if len(sys.argv) > 2:
+    basename = sys.argv[2]
+else:
+    basename = os.path.splitext(infile)[0]
+
+if os.path.exists(basename):
+    print("oops, output directory {} already exists - delete this first or change outdir".format(basename))
+    sys.exit(0)
+
+os.makedirs(basename)
 
 # https://www.youtube.com/watch?v=DQLUygS0IAQ
 # https://www.youtube.com/watch?v=J9gKyRmic20
@@ -34,11 +46,11 @@ estimates = test.separate(audio=audio.T, targets=['vocals', 'drums', 'bass', 'ot
 # librosa.output.write_wav('out_west.mp3', audio, rate)
 
 
-librosa.output.write_wav('out0_all.mp3', audio, rate)
-librosa.output.write_wav('out1_vocals.mp3', estimates['vocals'], rate)
-librosa.output.write_wav('out2_drums.mp3', estimates['drums'], rate)
-librosa.output.write_wav('out3_bass.mp3', estimates['bass'], rate)
-librosa.output.write_wav('out4_other.mp3', estimates['other'], rate)
+librosa.output.write_wav('{}/out0_all.mp3'.format(basename), audio, rate)
+librosa.output.write_wav('{}/out1_vocals.mp3'.format(basename), estimates['vocals'], rate)
+librosa.output.write_wav('{}/out2_drums.mp3'.format(basename), estimates['drums'], rate)
+librosa.output.write_wav('{}/out3_bass.mp3'.format(basename), estimates['bass'], rate)
+librosa.output.write_wav('{}/out4_other.mp3'.format(basename), estimates['other'], rate)
 
 volume_lists = [None] * 5
 
@@ -60,12 +72,12 @@ for i in range(num_windows):
 	start_point = i * 735
 	stop_point = (i+1) * 735
 	window = volume_lists[0][:,start_point:stop_point]
-	volumes[i][0] = np.max(window)
+	volumes[i][0] = np.mean(window)
 	for j in range(1,5):
 		window = volume_lists[j][start_point:stop_point,:]
 		# print(i,j,start_point,stop_point,window)
 		volumes[i][j] = np.mean(window)
 
-with open('volumes.csv', 'w') as f:
+with open('{}/volumes.csv'.format(basename), 'w') as f:
     for item in volumes:
         f.write("{:4.2f},{:4.2f},{:4.2f},{:4.2f},{:4.2f}\n".format(item[0],item[1],item[2],item[3],item[4]))
