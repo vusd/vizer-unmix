@@ -9,18 +9,18 @@ import sys
 
 if len(sys.argv) < 2:
     print("usage: vizer.py input.mp3 [outdir]")
-    sys.exit(0)
+    sys.exit(1)
 
 infile = sys.argv[1]
 
 if len(sys.argv) > 2:
     basename = sys.argv[2]
 else:
-    basename = os.path.splitext(infile)[0]
+    basename = os.path.splitext(os.path.basename(infile))[0]
 
 if os.path.exists(basename):
     print("oops, output directory {} already exists - delete this first or change outdir".format(basename))
-    sys.exit(0)
+    sys.exit(1)
 
 os.makedirs(basename)
 
