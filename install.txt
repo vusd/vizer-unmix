@@ -1,0 +1,5 @@
+conda create --name deep2 python=3
+conda activate deep2
+conda install pytorch::pytorch torchvision torchaudio -c pytorch
+conda install scipy
+conda install -c conda-forge librosa tqdm

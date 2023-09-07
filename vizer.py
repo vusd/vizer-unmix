@@ -1,9 +1,12 @@
+from pathlib import Path
 import torch
+import torchaudio
 import numpy as np
 import scipy
 import librosa
-import test
 import os
+from openunmix import predict
+from openunmix import data
 
 import sys
 
@@ -30,9 +33,11 @@ os.makedirs(basename)
 use_cuda = torch.cuda.is_available()
 device = torch.device("cuda" if use_cuda else "cpu")
 
-audio,rate = librosa.load(infile, sr=44100, mono=False)
+# audio,rate = librosa.load(infile, sr=44100, mono=False)
+audio, rate = data.load_audio(infile)
+print("Rate is ", rate)
 
-estimates = test.separate(audio=audio.T, targets=['vocals', 'drums', 'bass', 'other'], device=device, residual_model=False)
+estimates = predict.separate(audio=audio, targets=['vocals', 'drums', 'bass', 'other'], device=device, rate=rate)
 
 # estimates['vocals'].shape = (11953152, 2)
 # audio.shape = (2, 11954040)
@@ -45,37 +50,37 @@ estimates = test.separate(audio=audio.T, targets=['vocals', 'drums', 'bass', 'ot
 # librosa.output.write_wav('out_west.wav', audio, rate)
 # librosa.output.write_wav('out_west.mp3', audio, rate)
 
-
-librosa.output.write_wav('{}/out0_all.wav'.format(basename), audio, rate)
-librosa.output.write_wav('{}/out1_vocals.wav'.format(basename), estimates['vocals'], rate)
-librosa.output.write_wav('{}/out2_drums.wav'.format(basename), estimates['drums'], rate)
-librosa.output.write_wav('{}/out3_bass.wav'.format(basename), estimates['bass'], rate)
-librosa.output.write_wav('{}/out4_other.wav'.format(basename), estimates['other'], rate)
-
-# https://stackoverflow.com/questions/3255674/convert-audio-files-to-mp3-using-ffmpeg
-for file in ["out0_all", "out1_vocals", "out2_drums", "out3_bass", "out4_other"]:	
-    command = "ffmpeg -i {0}/{1}.wav -vn -ar 44100 -ac 2 -b:a 192k {0}/{1}.mp3".format(basename, file)
-    # command = "ffmpeg -i input.wav -vn -ar 44100 -ac 2 -b:a 192k output.mp3".format(bars_dir,bars_dir)
-    os.system(command)
-
-command = "rm {}/*.wav".format(basename)
-os.system(command)
+for target, estimate in estimates.items():
+    target_path = str(basename / Path(target).with_suffix(".mp3"))
+    torchaudio.save(
+        target_path,
+        torch.squeeze(estimate).to("cpu"),
+        sample_rate=rate,
+    )
 
 volume_lists = [None] * 5
 
 volume_lists[0] = 100 + librosa.core.amplitude_to_db(audio,top_db=100.0)
-volume_lists[1] = 100 + librosa.core.amplitude_to_db(estimates['vocals'],top_db=100.0)
-volume_lists[2] = 100 + librosa.core.amplitude_to_db(estimates['drums'],top_db=100.0)
-volume_lists[3] = 100 + librosa.core.amplitude_to_db(estimates['bass'],top_db=100.0)
-volume_lists[4] = 100 + librosa.core.amplitude_to_db(estimates['other'],top_db=100.0)
+volume_lists[1] = 100 + librosa.core.amplitude_to_db(estimates['vocals'][0][0],top_db=100.0)
+volume_lists[2] = 100 + librosa.core.amplitude_to_db(estimates['drums'][0][0],top_db=100.0)
+volume_lists[3] = 100 + librosa.core.amplitude_to_db(estimates['bass'][0][0],top_db=100.0)
+volume_lists[4] = 100 + librosa.core.amplitude_to_db(estimates['other'][0][0],top_db=100.0)
+
+print("Estimates[vocals]")
+print(estimates['vocals'].shape);
 
 # 44100 to 60 -> 735
+down_sample = rate / 60
 
 import math
 raw_len = volume_lists[1].shape[0]
-num_windows = math.ceil(raw_len / 735)
+num_windows = math.ceil(raw_len / down_sample)
 # volume_list = [None] * num_windows
 volumes = np.zeros([num_windows, 5])
+
+print("NUM WIND is ", num_windows, " from ", raw_len)
+print(volume_lists[1].shape)
+print(estimates['vocals'].shape)
 
 for i in range(num_windows):
 	start_point = i * 735
