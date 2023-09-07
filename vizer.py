@@ -85,10 +85,10 @@ print(estimates['vocals'].shape)
 for i in range(num_windows):
 	start_point = i * 735
 	stop_point = (i+1) * 735
-	window = volume_lists[0][:,start_point:stop_point]
+	window = volume_lists[1][start_point:stop_point]
 	volumes[i][0] = np.mean(window)
 	for j in range(1,5):
-		window = volume_lists[j][start_point:stop_point,:]
+		window = volume_lists[j][start_point:stop_point]
 		# print(i,j,start_point,stop_point,window)
 		volumes[i][j] = np.mean(window)
 
