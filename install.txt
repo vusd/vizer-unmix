@@ -3,3 +3,14 @@ conda activate deep2
 conda install pytorch::pytorch torchvision torchaudio -c pytorch
 conda install scipy
 conda install -c conda-forge librosa tqdm
+conda install -c conda-forge openai
+
+whisperX?
+conda install -c huggingface transformers
+conda install -c conda-forge pandas nltk
+conda install -c conda-forge 'ffmpeg-python>=0.2'
+# NO conda install -c conda-forge 'faster-whisper'
+pip install --no-dependencies -e .
+pip install ctranslate2
+pip install faster-whisper
+pip install pyannote.audio
