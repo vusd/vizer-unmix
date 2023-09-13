@@ -61,10 +61,10 @@ for target, estimate in estimates.items():
 volume_lists = [None] * 5
 
 volume_lists[0] = 100 + librosa.core.amplitude_to_db(audio,top_db=100.0)
-volume_lists[1] = 100 + librosa.core.amplitude_to_db(estimates['vocals'][0][0],top_db=100.0)
-volume_lists[2] = 100 + librosa.core.amplitude_to_db(estimates['drums'][0][0],top_db=100.0)
-volume_lists[3] = 100 + librosa.core.amplitude_to_db(estimates['bass'][0][0],top_db=100.0)
-volume_lists[4] = 100 + librosa.core.amplitude_to_db(estimates['other'][0][0],top_db=100.0)
+volume_lists[1] = 100 + librosa.core.amplitude_to_db(estimates['vocals'][0][0].cpu(),top_db=100.0)
+volume_lists[2] = 100 + librosa.core.amplitude_to_db(estimates['drums'][0][0].cpu(),top_db=100.0)
+volume_lists[3] = 100 + librosa.core.amplitude_to_db(estimates['bass'][0][0].cpu(),top_db=100.0)
+volume_lists[4] = 100 + librosa.core.amplitude_to_db(estimates['other'][0][0].cpu(),top_db=100.0)
 
 print("Estimates[vocals]")
 print(estimates['vocals'].shape);

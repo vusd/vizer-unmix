@@ -1,3 +1,5 @@
+mac1
+----
 conda create --name deep2 python=3
 conda activate deep2
 conda install pytorch::pytorch torchvision torchaudio -c pytorch
@@ -14,3 +16,22 @@ pip install --no-dependencies -e .
 pip install ctranslate2
 pip install faster-whisper
 pip install pyannote.audio
+
+unix1
+-----
+conda create --name deep2 python=3.10
+conda activate deep2
+
+(whisperX)
+git clone git@github.com:m-bain/whisperX.git
+cd whisperX
+# conda install pytorch==2.0.0 torchaudio==2.0.0 pytorch-cuda=11.8 -c pytorch -c nvidia
+# conda install pytorch torchaudio torchvision pytorch-cuda=11.6 -c pytorch -c nvidia
+# conda install pytorch torchaudio pytorch-cuda=11.6 -c pytorch -c nvidia
+# conda install pytorch==2.0.0 torchaudio==2.0.0 pytorch-cuda=11.6 -c pytorch -c nvidia
+conda install pytorch==2.0.0 torchaudio==2.0.0 torchvision pytorch-cuda=11.8 -c pytorch -c nvidia
+pip install -e .
+
+# works. then vizer time
+
+
